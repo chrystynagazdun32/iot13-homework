@@ -10,16 +10,16 @@ class FileHandlerException(Exception):
 
 class FileCorrupted(FileHandlerException):
     def __init__(self, filename):
-        super().__init__(f"Помилка: Файл '{filename}' пошкоджений або має неправильний формат JSON.")
+        super().__init__(f"Error: File '{filename}' is corrupted or invalid JSON format.")
 
 
 class FileNotFound(FileHandlerException):
     def __init__(self, filename):
-        super().__init__(f"Помилка: Файл '{filename}' не знайдено.")
+        super().__init__(f"Error: File '{filename}' not found.")
 
 
 def logged(mode="console", log_file="file_handler.log"):
-    """Декоратор для логування методів класу."""
+    """Decorator for logging class methods."""
     
     logger = logging.getLogger('FileHandlerLogger')
     logger.setLevel(logging.INFO)
@@ -43,18 +43,18 @@ def logged(mode="console", log_file="file_handler.log"):
             operation = func.__name__
             filename = getattr(self, 'file_path', 'N/A')
 
-            logger.info(f"Спроба: {operation} з файлом {filename}.")
+            logger.info(f"Attempt: {operation} with file {filename}.")
 
             try:
                 result = func(self, *args, **kwargs)
-                logger.info(f"Успіх: {operation} завершено для {filename}.")
+                logger.info(f"Success: {operation} completed for {filename}.")
                 return result
             except FileHandlerException as e:
-                logger.error(f"Виняток: {operation} для {filename}. Помилка: {e}")
+                logger.error(f"Exeption: {operation} for {filename}. Error: {e}")
                 raise
             except Exception as e:
                 logger.critical(
-                    f"Критична помилка: {operation} для {filename}. Помилка: {e}",
+                    f"Critical errorа: {operation} for {filename}. Error: {e}",
                     exc_info=True
                 )
                 raise
@@ -73,7 +73,7 @@ class JsonFileHandler:
                     json.dump({}, f)
             except Exception as e:
                 raise FileHandlerException(
-                    f"Неможливо створити файл '{self.file_path}': {e}"
+                    f"Unable to create file '{self.file_path}': {e}"
                 )
 
     @logged()
@@ -88,7 +88,7 @@ class JsonFileHandler:
             raise FileCorrupted(self.file_path)
         except Exception:
             raise FileHandlerException(
-                f"Невідома помилка при читанні файлу '{self.file_path}'."
+                f"Unknown error reading file '{self.file_path}'."
             )
 
     @logged()
@@ -115,7 +115,7 @@ class JsonFileHandler:
 
                 else:
                     raise FileHandlerException(
-                        "Помилка дозапису: невідповідність типів даних (потрібно dict->dict або list->list)."
+                        "Append error: Data type mismatch (requires dict->dict або list->list)."
                     )
 
             with open(self.file_path, 'w', encoding='utf-8') as f:
@@ -125,7 +125,7 @@ class JsonFileHandler:
             raise
         except Exception as e:
             raise FileHandlerException(
-                f"Невідома помилка при записі у файл '{self.file_path}'. Помилка: {e}"
+                f"Unknown error writing to file '{self.file_path}'. Error: {e}"
             )
 
     @logged()
